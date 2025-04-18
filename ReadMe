@@ -1,1 +1,76 @@
-My First Rag Commit
+# 🧠 RAG-Based Nursery Rhyme Search
+
+A basic **Retrieval-Augmented Generation (RAG)** project that takes a user query (e.g., part of a nursery rhyme) and retrieves the most relevant rhymes using **FAISS**, then generates an appropriate response using a Hugging Face transformer model.
+
+---
+
+## 🚀 Features
+
+- 🔍 Semantic search using **SentenceTransformers**
+- ⚡ Fast similarity search with **FAISS**
+- 🧾 Response generation using `google/flan-t5-base`
+- 🖥️ Interactive terminal interface
+- 🐳 Dockerized for easy cross-platform use
+
+---
+
+## 🗂️ Project Structure
+rag-nursery/
+│
+├── app.py                # Main Python script
+├── requirements.txt      # Python dependencies
+├── Dockerfile            # Docker config
+└── rhymes/               # Folder containing .txt files of nursery rhymes
+    ├── twinkle.txt
+    ├── baa_baa.txt
+    └── ...
+
+---
+
+## 🐳 Running with Docker
+
+1. Clone the Repo & Navigate to Folder:
+
+        git clone https://github.com/yourusername/rag-nursery.git
+        cd rag-nursery
+
+2. Build the Docker Image:
+
+        docker build -t rag-rhyme .
+
+3. Run the Docker Container (with interactive prompt)
+
+      docker run -it --rm rag-nursery
+
+Then simply type in your query when prompted, for example:
+
+      Ask about a rhyme (or press Enter to exit): twinkle little
+
+---
+
+## ⚠️ FAISS Note (Windows Users)
+FAISS does not run natively on Windows. If you're on Windows, you can:
+
+Use this Dockerized setup
+
+Run in Google Colab
+
+Or install WSL2 (Windows Subsystem for Linux) and run the Python version there
+
+---
+
+## 🛠️ Technologies Used
+- Python 3.10
+- Hugging Face Transformers
+- SentenceTransformers
+- FAISS (CPU version)
+- Docker
+
+---
+
+## 💡 Ideas for Future Improvements
+- Add a web UI
+- Support multi-modal inputs (text + audio)
+- Add rhyme similarity visualization
+- Expand to a larger poetry dataset
+
