@@ -1,15 +1,30 @@
-# app.py
 import os
 import streamlit as st
 import numpy as np
-import pickle
 from sentence_transformers import SentenceTransformer
 from transformers import pipeline
 
-@st.cache_resource
-def load_models():
+# Dropdown model options
+MODEL_OPTIONS = {
+    "FLAN-T5 Small": "google/flan-t5-small",
+    "FLAN-T5 Base": "google/flan-t5-base",
+    "FLAN-T5 Large": "google/flan-t5-large"
+}
+
+# Sidebar navigation
+st.sidebar.title("🔍 Navigation")
+page = st.sidebar.radio("Go to", ["📘 Introduction", "🧸 Nursery Rhyme QA"])
+
+selected_model_name = st.sidebar.selectbox(
+    "Choose LLM model",
+    options=list(MODEL_OPTIONS.keys()),
+    index=0
+)
+
+@st.cache_resource(show_spinner=False)
+def load_models(llm_model_name):
     embedder = SentenceTransformer('all-MiniLM-L6-v2')
-    qa_model = pipeline("text2text-generation", model="google/flan-t5-small")
+    qa_model = pipeline("text2text-generation", model=llm_model_name)
     return embedder, qa_model
 
 @st.cache_data
@@ -19,7 +34,7 @@ def load_docs_and_embeddings(path="Data"):
         if filename.endswith(".txt"):
             with open(os.path.join(path, filename), "r", encoding="utf-8") as f:
                 docs.append(f.read())
-    embedder, _ = load_models()
+    embedder, _ = load_models(MODEL_OPTIONS[selected_model_name])
     embeddings = embedder.encode(docs).astype('float32')
     return docs, embeddings
 
@@ -41,15 +56,35 @@ def query_rhymes(prompt, docs, doc_embeddings, embedder, qa, top_k=3, distance_t
     response = qa(full_prompt, max_length=500, do_sample=False)[0]['generated_text']
     return response, top_k_dists[0]
 
-# --------- Streamlit UI ---------
-st.title("Nursery Rhyme QA Assistant 🧸🎤")
-st.markdown("Ask a question about common nursery rhymes. The app will find the best match and try to answer it.")
+# --------- PAGE ROUTING ---------
+if page == "📘 Introduction":
+    st.title("📘 Introduction: Nursery Rhyme QA Model")
+    st.markdown("""
+    This app is a fun and educational demo of a **Retrieval-Augmented Generation (RAG)** system built with:
 
-query = st.text_input("Enter your question here:")
+    - **Sentence-BERT** (`all-MiniLM-L6-v2`) for semantic embedding of nursery rhymes.
+    - **L1 Distance Search** to retrieve the most relevant rhymes from a dataset.
+    - **FLAN-T5 models** (instruction-tuned LLMs by Google) to answer user questions using retrieved context.
 
-if query:
-    embedder, qa = load_models()
-    docs, doc_embeddings = load_docs_and_embeddings()
-    answer, dist = query_rhymes(query, docs, doc_embeddings, embedder, qa)
-    st.write(f"**Answer:** {answer}")
-    st.write(f"_(Distance Score: {dist:.2f})_")
+    ### How it Works
+    1. You ask a question (e.g., *What did the dish do after the cow jumped over the moon?*)
+    2. The system finds the closest matching rhymes using **vector similarity**.
+    3. It passes both the **retrieved rhymes** and your **question** to an LLM to generate a natural-language answer.
+
+    ### Select a model from the sidebar and head to the QA page to try it out! 🎉
+    """)
+elif page == "🧸 Nursery Rhyme QA":
+    st.title("🧸 Nursery Rhyme QA Assistant")
+    st.markdown("Ask a question about common nursery rhymes, and the model will try to answer it!")
+
+    query = st.text_input("Enter your question here:")
+
+    if query:
+        embedder, qa = load_models(MODEL_OPTIONS[selected_model_name])
+        docs, doc_embeddings = load_docs_and_embeddings()
+        answer, dist = query_rhymes(query, docs, doc_embeddings, embedder, qa)
+        st.write(f"**Answer:** {answer}")
+        st.write(f"_(Distance Score: {dist:.2f})_")
+# Footer
+st.sidebar.markdown("---")
+st.sidebar.write("Created by Roshni Bhowmik")

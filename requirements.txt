@@ -1,6 +1,6 @@
-streamlit
-transformers
-sentence-transformers
-torch
-numpy
-scikit-learn
+streamlit>=1.25.0
+sentence-transformers>=2.2.2
+transformers>=4.35.0
+torch>=1.12.1
+numpy>=1.23.0
+scikit-learn>=1.2.2  
