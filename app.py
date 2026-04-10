@@ -24,7 +24,7 @@ selected_model_name = st.sidebar.selectbox(
 @st.cache_resource(show_spinner=False)
 def load_models(llm_model_name):
     embedder = SentenceTransformer('all-MiniLM-L6-v2')
-    qa_model = pipeline("text2text-generation", model=llm_model_name)
+    qa_model = pipeline("text-generation", model=llm_model_name)
     return embedder, qa_model
 
 @st.cache_data
